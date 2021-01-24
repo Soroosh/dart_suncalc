@@ -1,11 +1,17 @@
 import './constants.dart';
 
+final julianEpoch = DateTime.utc(-4713, 11, 24, 12, 0, 0);
+
 num toJulian(DateTime date) {
-  return date.millisecondsSinceEpoch / dayMs - 0.5 + J1970;
+  return date.difference(julianEpoch).inSeconds / Duration.secondsPerDay;
 }
 
 DateTime fromJulian(num j) {
-  return new DateTime.fromMillisecondsSinceEpoch(((j + 0.5 - 1970) * dayMs).round());
+  if (j.isNaN)
+    return null;
+  else
+    return julianEpoch
+        .add(Duration(milliseconds: (j * Duration.millisecondsPerDay).floor()));
 }
 
 num toDays(DateTime date) {

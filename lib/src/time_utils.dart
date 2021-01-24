@@ -14,12 +14,18 @@ num solarTransitJ(ds, M, L) {
 }
 
 num hourAngle(h, phi, d) {
-  return math.acos((math.sin(h) - math.sin(phi) * math.sin(d)) / (math.cos(phi) * math.cos(d)));
+  return math.acos((math.sin(h) - math.sin(phi) * math.sin(d)) /
+      (math.cos(phi) * math.cos(d)));
 }
 
 num getSetJ(h, lw, phi, dec, n, M, L) {
-  var w = hourAngle(h, phi, dec);
-  var a = approxTransit(w, lw, n);
+  final w = hourAngle(h, phi, dec);
+  final a = approxTransit(w, lw, n);
 
   return solarTransitJ(a, M, L);
+}
+
+DateTime hoursLater(DateTime date, num h) {
+  final ms = h * 60 * 60 * 1000;
+  return date.add(new Duration(milliseconds: ms.toInt()));
 }

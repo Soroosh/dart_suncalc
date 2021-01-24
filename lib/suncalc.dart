@@ -1,95 +1,14 @@
-library flutter_suncalc;
+library suncalc;
 
 import 'dart:math' as math;
 
-const PI = math.pi;
-const RAD = PI / 180;
-const E = RAD * 23.4397; // obliquity of the Earth
+import 'package:suncalc/src/date_utils.dart';
+import 'package:suncalc/src/moon_utils.dart';
+import 'package:suncalc/src/position_utils.dart';
+import 'package:suncalc/src/sun_utils.dart';
+import 'package:suncalc/src/time_utils.dart';
 
-// date/time constants and conversions
-const dayMs = 1000 * 60 * 60 * 24;
-const J1970 = 2440588;
-const J2000 = 2451545;
-const J0 = 0.0009;
-final julianEpoch = DateTime.utc(-4713, 11, 24, 12, 0, 0);
-
-num toJulian(DateTime date) {
-  return date.difference(julianEpoch).inSeconds / Duration.secondsPerDay;
-}
-
-DateTime fromJulian(num j) {
-  if (j.isNaN)
-    return null;
-  else
-    return julianEpoch
-        .add(Duration(milliseconds: (j * Duration.millisecondsPerDay).floor()));
-}
-
-num toDays(DateTime date) {
-  return toJulian(date) - J2000;
-}
-
-// general calculations for position
-num rightAscension(num l, num b) {
-  return math.atan2(
-      math.sin(l) * math.cos(E) - math.tan(b) * math.sin(E), math.cos(l));
-}
-
-num declination(num l, num b) {
-  return math.asin(
-      math.sin(b) * math.cos(E) + math.cos(b) * math.sin(E) * math.sin(l));
-}
-
-num azimuth(num H, num phi, num dec) {
-  return math.atan2(
-      math.sin(H), math.cos(H) * math.sin(phi) - math.tan(dec) * math.cos(phi));
-}
-
-num altitude(num H, num phi, num dec) {
-  return math.asin(math.sin(phi) * math.sin(dec) +
-      math.cos(phi) * math.cos(dec) * math.cos(H));
-}
-
-num siderealTime(num d, num lw) {
-  return RAD * (280.16 + 360.9856235 * d) - lw;
-}
-
-num astroRefraction(num h) {
-  if (h < 0) {
-    // the following formula works for positive altitudes only.
-    h = 0; // if h = -0.08901179 a div/0 would occur.
-  }
-  // formula 16.4 of "Astronomical Algorithms" 2nd edition by Jean Meeus (Willmann-Bell, Richmond) 1998.
-  // 1.02 / tan(h + 10.26 / (h + 5.10)) h in degrees, result in arc minutes -> converted to rad:
-  return 0.0002967 / math.tan(h + 0.00312536 / (h + 0.08901179));
-}
-
-// general sun calculations
-num solarMeanAnomaly(num d) {
-  return RAD * (357.5291 + 0.98560028 * d);
-}
-
-num equationOfCenter(num M) {
-  final firstFactor = 1.9148 * math.sin(M);
-  final secondFactor = 0.02 * math.sin(2 * M);
-  final thirdFactor = 0.0003 * math.sin(3 * M);
-
-  return RAD * (firstFactor + secondFactor + thirdFactor);
-}
-
-num eclipticLongitude(num M) {
-  final C = equationOfCenter(M);
-  final P = RAD * 102.9372; // perihelion of the Earth
-
-  return M + C + P + PI;
-}
-
-Map<String, num> sunCoords(num d) {
-  final M = solarMeanAnomaly(d);
-  final L = eclipticLongitude(M);
-
-  return {"dec": declination(L, 0), "ra": rightAscension(L, 0)};
-}
+import 'src/constants.dart';
 
 // calculations for sun times
 final times = [
@@ -100,48 +19,6 @@ final times = [
   [-18, 'nightEnd', 'night'],
   [6, 'goldenHourEnd', 'goldenHour']
 ];
-
-num julianCycle(d, lw) {
-  return (d - J0 - lw / (2 * PI)).round();
-}
-
-num approxTransit(ht, lw, n) {
-  return J0 + (ht + lw) / (2 * PI) + n;
-}
-
-num solarTransitJ(ds, M, L) {
-  return J2000 + ds + 0.0053 * math.sin(M) - 0.0069 * math.sin(2 * L);
-}
-
-num hourAngle(h, phi, d) {
-  return math.acos((math.sin(h) - math.sin(phi) * math.sin(d)) /
-      (math.cos(phi) * math.cos(d)));
-}
-
-num getSetJ(h, lw, phi, dec, n, M, L) {
-  final w = hourAngle(h, phi, dec);
-  final a = approxTransit(w, lw, n);
-
-  return solarTransitJ(a, M, L);
-}
-
-DateTime hoursLater(DateTime date, num h) {
-  final ms = h * 60 * 60 * 1000;
-  return date.add(new Duration(milliseconds: ms.toInt()));
-}
-
-// moon calculations, based on http://aa.quae.nl/en/reken/hemelpositie.html formulas
-Map<String, num> moonCoords(num d) {
-  final L = RAD * (218.316 + 13.176396 * d);
-  final M = RAD * (134.963 + 13.064993 * d);
-  final F = RAD * (93.272 + 13.229350 * d);
-
-  final l = L + RAD * 6.289 * math.sin(M);
-  final b = RAD * 5.128 * math.sin(F);
-  final dt = 385001 - 20905 * math.cos(M);
-
-  return {"ra": rightAscension(l, b), "dec": declination(l, b), "dist": dt};
-}
 
 class SunCalc {
   static void addTime(num angle, String riseName, String setName) {
