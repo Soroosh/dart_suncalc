@@ -34,7 +34,7 @@ void main() {
 
   test('getTimes returns sun phases in summer in Kiev', () {
     final date = new DateTime.utc(2020, 6, 10);
-    final times = SunCalc.getTimes(date, lat, lng);
+    final times = SunCalc.getTimes(date, lat: lat, lng: lng);
 
     expect(times["sunrise"].toIso8601String().substring(0, 19),
         "2020-06-10T01:47:58");
@@ -46,7 +46,7 @@ void main() {
     DateTime date = new DateTime.utc(2020, 6, 9);
     const sthlm = {"lat": 59.33538407920466, "lng": 18.03007918439074};
     // https://www.timeanddate.com/sun/sweden/stockholm?month=6&year=2020
-    final times = SunCalc.getTimes(date, sthlm["lat"], sthlm["lng"]);
+    final times = SunCalc.getTimes(date, lat: sthlm["lat"], lng: sthlm["lng"]);
 
     expect(times["sunrise"].toIso8601String().substring(0, 19),
         "2020-06-09T01:35:47");
@@ -58,7 +58,8 @@ void main() {
     DateTime date = new DateTime.utc(2020, 7, 1);
     const kiruna = {"lat": 67.8537716, "lng": 20.1163502};
     // https://www.timeanddate.com/sun/sweden/kiruna?month=7&year=2020
-    final times = SunCalc.getTimes(date, kiruna["lat"], kiruna["lng"]);
+    final times =
+        SunCalc.getTimes(date, lat: kiruna["lat"], lng: kiruna["lng"]);
 
     expect(times["sunrise"], null);
     expect(times["sunset"], null);
@@ -68,7 +69,8 @@ void main() {
     DateTime date = new DateTime.utc(2020, 7, 17);
     const kiruna = {"lat": 67.8537716, "lng": 20.1163502};
     // https://www.timeanddate.com/sun/sweden/kiruna?month=7&year=2020
-    final times = SunCalc.getTimes(date, kiruna["lat"], kiruna["lng"]);
+    final times =
+        SunCalc.getTimes(date, lat: kiruna["lat"], lng: kiruna["lng"]);
 
     expect(times["sunrise"].toIso8601String().substring(0, 19),
         "2020-07-16T23:17:03");
@@ -79,14 +81,14 @@ void main() {
   test(
       'getPosition returns azimuth and altitude for the given time and location',
       () {
-    final sunPos = SunCalc.getPosition(date, lat, lng);
+    final sunPos = SunCalc.getPosition(date, lat: lat, lng: lng);
 
     expect(near(sunPos["azimuth"], -2.5003175907168385), true);
     expect(near(sunPos["altitude"], -0.7000406838781611), true);
   });
 
   test('getTimes returns sun phases for the given date and location', () {
-    final times = SunCalc.getTimes(date, lat, lng);
+    final times = SunCalc.getTimes(date, lat: lat, lng: lng);
 
     testTimes.forEach((key, value) {
       expect(times[key].toIso8601String().substring(0, 19) + "Z", value);
@@ -95,7 +97,7 @@ void main() {
 
   test('getMoonPosition returns moon position data given time and location',
       () {
-    final moonPos = SunCalc.getMoonPosition(date, lat, lng);
+    final moonPos = SunCalc.getMoonPosition(date, lat: lat, lng: lng);
 
     expect(near(moonPos["azimuth"], -0.9783999522438226), true);
     expect(near(moonPos["altitude"], 0.014551482243892251), true);
@@ -113,8 +115,8 @@ void main() {
   });
 
   test('getMoonTimes returns moon rise and set times', () {
-    final moonTimes =
-        SunCalc.getMoonTimes(new DateTime.utc(2013, 3, 4), lat, lng, true);
+    final moonTimes = SunCalc.getMoonTimes(new DateTime.utc(2013, 3, 4),
+        lat: lat, lng: lng, inUtc: true);
 
     expect(moonTimes["rise"].toIso8601String().substring(0, 19),
         "2013-03-04T23:54:29");
@@ -123,8 +125,8 @@ void main() {
   });
 
   test('add time', () {
-    SunCalc.addTime(0, 'z1', 'z2');
-    final times = SunCalc.getTimes(date, lat, lng);
+    SunCalc.addTime(0, riseName: 'z1', setName: 'z2');
+    final times = SunCalc.getTimes(date, lat: lat, lng: lng);
 
     expect(times['z1'].isBefore(times['sunrise']), false);
     expect(times['z1'].isBefore(times['sunriseEnd']), false);

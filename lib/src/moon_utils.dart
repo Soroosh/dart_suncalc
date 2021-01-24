@@ -12,5 +12,9 @@ Map<String, num> moonCoords(num d) {
   final b = RAD * 5.128 * math.sin(F);
   final dt = 385001 - 20905 * math.cos(M);
 
-  return {"ra": rightAscension(l, b), "dec": declination(l, b), "dist": dt};
+  return {
+    "ra": rightAscension(l: l, b: b),
+    "dec": declination(l: l, b: b),
+    "dist": dt
+  };
 }

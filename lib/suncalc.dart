@@ -2,6 +2,7 @@ library suncalc;
 
 import 'dart:math' as math;
 
+import 'package:meta/meta.dart';
 import 'package:suncalc/src/date_utils.dart';
 import 'package:suncalc/src/moon_utils.dart';
 import 'package:suncalc/src/position_utils.dart';
@@ -21,42 +22,54 @@ final times = [
 ];
 
 class SunCalc {
-  static void addTime(num angle, String riseName, String setName) {
+  static void addTime(num angle,
+      {@required String riseName, @required String setName}) {
+    assert(riseName != null);
+    assert(setName != null);
     times.add([angle, riseName, setName]);
   }
 
   // calculates sun position for a given date and latitude/longitude
-  static Map<String, num> getPosition(DateTime date, num lat, num lng) {
+  static Map<String, num> getPosition(DateTime date,
+      {@required num lat, @required num lng}) {
+    assert(lat != null);
+    assert(lng != null);
     final lw = RAD * -lng;
     final phi = RAD * lat;
     final d = toDays(date);
 
     final c = sunCoords(d);
-    final H = siderealTime(d, lw) - c["ra"];
+    final H = siderealTime(d: d, lw: lw) - c["ra"];
 
     return {
-      "azimuth": azimuth(H, phi, c["dec"]),
-      "altitude": altitude(H, phi, c["dec"])
+      "azimuth": azimuth(H: H, phi: phi, dec: c["dec"]),
+      "altitude": altitude(H: H, phi: phi, dec: c["dec"])
     };
   }
 
-  static Map<String, num> getSunPosition(DateTime date, num lat, num lng) {
-    return SunCalc.getPosition(date, lat, lng);
+  static Map<String, num> getSunPosition(DateTime date,
+      {@required num lat, @required num lng}) {
+    assert(lat != null);
+    assert(lng != null);
+    return SunCalc.getPosition(date, lat: lat, lng: lng);
   }
 
-  static Map<String, DateTime> getTimes(DateTime date, num lat, num lng) {
+  static Map<String, DateTime> getTimes(DateTime date,
+      {@required num lat, @required num lng}) {
+    assert(lat != null);
+    assert(lng != null);
     final lw = RAD * -lng;
     final phi = RAD * lat;
 
     final d = toDays(date);
-    final n = julianCycle(d, lw);
-    final ds = approxTransit(0, lw, n);
+    final n = julianCycle(d: d, lw: lw);
+    final ds = approxTransit(ht: 0, lw: lw, n: n);
 
     final M = solarMeanAnomaly(ds);
     final L = eclipticLongitude(M);
-    final dec = declination(L, 0);
+    final dec = declination(l: L, b: 0);
 
-    final jnoon = solarTransitJ(ds, M, L);
+    final jnoon = solarTransitJ(ds: ds, M: M, L: L);
     var i, time, jset, jrise;
 
     final result = {
@@ -67,7 +80,8 @@ class SunCalc {
     for (i = 0; i < times.length; i += 1) {
       time = times[i];
 
-      jset = getSetJ(time[0] * RAD, lw, phi, dec, n, M, L);
+      jset = getSetJ(
+          h: time[0] * RAD, lw: lw, phi: phi, dec: dec, n: n, M: M, L: L);
       jrise = jnoon - (jset - jnoon);
 
       result[time[1]] = fromJulian(jrise);
@@ -77,14 +91,17 @@ class SunCalc {
     return result;
   }
 
-  static Map<String, num> getMoonPosition(DateTime date, num lat, num lng) {
+  static Map<String, num> getMoonPosition(DateTime date,
+      {@required num lat, @required num lng}) {
+    assert(lat != null);
+    assert(lng != null);
     final lw = RAD * -lng;
     final phi = RAD * lat;
     final d = toDays(date);
 
     final c = moonCoords(d);
-    final H = siderealTime(d, lw) - c["ra"];
-    var h = altitude(H, phi, c["dec"]);
+    final H = siderealTime(d: d, lw: lw) - c["ra"];
+    var h = altitude(H: H, phi: phi, dec: c["dec"]);
     // formula 14.1 of "Astronomical Algorithms" 2nd edition by Jean Meeus (Willmann-Bell, Richmond) 1998.
     final pa = math.atan2(math.sin(H),
         math.tan(phi) * math.cos(c["dec"]) - math.sin(c["dec"]) * math.cos(H));
@@ -92,7 +109,7 @@ class SunCalc {
     h = h + astroRefraction(h); // altitude correction for refraction
 
     return {
-      "azimuth": azimuth(H, phi, c["dec"]),
+      "azimuth": azimuth(H: H, phi: phi, dec: c["dec"]),
       "altitude": h,
       "distance": c["dist"],
       "parallacticAngle": pa
@@ -124,14 +141,16 @@ class SunCalc {
     };
   }
 
-  static Map getMoonTimes(DateTime date, num lat, num lng,
-      [bool inUtc = true]) {
+  static Map getMoonTimes(DateTime date,
+      {@required num lat, @required num lng, bool inUtc = true}) {
+    assert(lat != null);
+    assert(lng != null);
     var t = new DateTime(date.year, date.month, date.day, 0, 0, 0);
     if (inUtc) {
       t = new DateTime.utc(date.year, date.month, date.day, 0, 0, 0);
     }
     const hc = 0.133 * RAD;
-    var h0 = SunCalc.getMoonPosition(t, lat, lng)["altitude"] - hc;
+    var h0 = SunCalc.getMoonPosition(t, lat: lat, lng: lng)["altitude"] - hc;
     var h1 = 0.0;
     var h2 = 0.0;
     var rise = 0.0;
@@ -148,8 +167,11 @@ class SunCalc {
 
     // go in 2-hour chunks, each time seeing if a 3-point quadratic curve crosses zero (which means rise or set)
     for (var i = 1; i <= 24; i += 2) {
-      h1 = SunCalc.getMoonPosition(hoursLater(t, i), lat, lng)["altitude"] - hc;
-      h2 = SunCalc.getMoonPosition(hoursLater(t, i + 1), lat, lng)["altitude"] -
+      h1 = SunCalc.getMoonPosition(hoursLater(t, i),
+              lat: lat, lng: lng)["altitude"] -
+          hc;
+      h2 = SunCalc.getMoonPosition(hoursLater(t, i + 1),
+              lat: lat, lng: lng)["altitude"] -
           hc;
 
       a = (h0 + h2) / 2 - h1;

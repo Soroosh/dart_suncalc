@@ -26,5 +26,5 @@ Map<String, num> sunCoords(num d) {
   final M = solarMeanAnomaly(d);
   final L = eclipticLongitude(M);
 
-  return {"dec": declination(L, 0), "ra": rightAscension(L, 0)};
+  return {"dec": declination(l: L, b: 0), "ra": rightAscension(l: L, b: 0)};
 }
