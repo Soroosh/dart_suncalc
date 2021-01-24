@@ -1,4 +1,4 @@
-name: suncalc
+name: dart_suncalc
 description: A port of the suncalc library from https://github.com/mourner/suncalc
 version: 0.1.0
 

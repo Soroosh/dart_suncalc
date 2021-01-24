@@ -1,4 +1,4 @@
-import 'package:suncalc/suncalc.dart';
+import 'package:dart_suncalc/suncalc.dart';
 import 'package:test/test.dart';
 
 void main() {

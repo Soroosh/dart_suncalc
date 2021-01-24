@@ -1,13 +1,13 @@
-library suncalc;
+library dart_suncalc;
 
 import 'dart:math' as math;
 
 import 'package:meta/meta.dart';
-import 'package:suncalc/src/date_utils.dart';
-import 'package:suncalc/src/moon_utils.dart';
-import 'package:suncalc/src/position_utils.dart';
-import 'package:suncalc/src/sun_utils.dart';
-import 'package:suncalc/src/time_utils.dart';
+import 'package:dart_suncalc/src/date_utils.dart';
+import 'package:dart_suncalc/src/moon_utils.dart';
+import 'package:dart_suncalc/src/position_utils.dart';
+import 'package:dart_suncalc/src/sun_utils.dart';
+import 'package:dart_suncalc/src/time_utils.dart';
 
 import 'src/constants.dart';
 
