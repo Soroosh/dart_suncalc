@@ -1,15 +1,13 @@
 name: dart_suncalc
-description: A port of the suncalc library from https://github.com/mourner/suncalc
+description: A dart port of the suncalc library from https://github.com/mourner/suncalc
 version: 0.1.0
+author: Soroosh Pezeshki
+homepage: https://github.com/Soroosh
+
 
 
 environment:
-  sdk: ">=2.10.0 <3.0.0"
-
-dependencies:
-  meta: ^1.1.7
+  sdk: ">=2.12.2 <3.0.0"
 
 dev_dependencies:
-  test: ^1.15.7
-
-
+  test: ^1.16.5

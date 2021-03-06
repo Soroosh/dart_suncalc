@@ -1,31 +1,21 @@
 import 'package:dart_suncalc/suncalc.dart';
 import 'package:test/test.dart';
 
+class Coord {
+  final double lat;
+  final double lng;
+
+  Coord({required this.lat, required this.lng});
+}
+
 void main() {
   bool near(val1, val2, [margin = 1E-15]) {
     return ((val1 - val2).abs() < margin);
   }
 
-  final date = new DateTime.utc(2013, 3, 5);
+  final date = DateTime.utc(2013, 3, 5);
   const lat = 50.5;
   const lng = 30.5;
-
-  const testTimes = {
-    'solarNoon': '2013-03-05T10:10:57Z',
-    'nadir': '2013-03-04T22:10:57Z',
-    'sunrise': '2013-03-05T04:34:56Z',
-    'sunset': '2013-03-05T15:46:57Z',
-    'sunriseEnd': '2013-03-05T04:38:19Z',
-    'sunsetStart': '2013-03-05T15:43:34Z',
-    'dawn': '2013-03-05T04:02:17Z',
-    'dusk': '2013-03-05T16:19:36Z',
-    'nauticalDawn': '2013-03-05T03:24:31Z',
-    'nauticalDusk': '2013-03-05T16:57:22Z',
-    'nightEnd': '2013-03-05T02:46:17Z',
-    'night': '2013-03-05T17:35:36Z',
-    'goldenHourEnd': '2013-03-05T05:19:01Z',
-    'goldenHour': '2013-03-05T15:02:52Z'
-  };
 
   test('Duration class exposes static const variables', () {
     expect(Duration.millisecondsPerDay, isA<int>());
@@ -33,75 +23,97 @@ void main() {
   });
 
   test('getTimes returns sun phases in summer in Kiev', () {
-    final date = new DateTime.utc(2020, 6, 10);
+    final date = DateTime.utc(2020, 6, 10);
     final times = SunCalc.getTimes(date, lat: lat, lng: lng);
 
-    expect(times["sunrise"].toIso8601String().substring(0, 19),
+    expect(times.sunrise?.toIso8601String().substring(0, 19),
         "2020-06-10T01:47:58");
-    expect(times["sunset"].toIso8601String().substring(0, 19),
+    expect(times.sunset?.toIso8601String().substring(0, 19),
         "2020-06-10T18:09:48");
   });
 
   test('getTimes returns sun phases in summer in Stockholm', () {
-    DateTime date = new DateTime.utc(2020, 6, 9);
-    const sthlm = {"lat": 59.33538407920466, "lng": 18.03007918439074};
+    DateTime date = DateTime.utc(2020, 6, 9);
+    final sthlm = Coord(lat: 59.33538407920466, lng: 18.03007918439074);
     // https://www.timeanddate.com/sun/sweden/stockholm?month=6&year=2020
-    final times = SunCalc.getTimes(date, lat: sthlm["lat"], lng: sthlm["lng"]);
+    final times = SunCalc.getTimes(date, lat: sthlm.lat, lng: sthlm.lng);
 
-    expect(times["sunrise"].toIso8601String().substring(0, 19),
+    expect(times.sunrise?.toIso8601String().substring(0, 19),
         "2020-06-09T01:35:47");
-    expect(times["sunset"].toIso8601String().substring(0, 19),
+    expect(times.sunset?.toIso8601String().substring(0, 19),
         "2020-06-09T20:01:23");
   });
 
   test('getTimes returns sun phases in summer in Kiruna (midnight sun)', () {
-    DateTime date = new DateTime.utc(2020, 7, 1);
-    const kiruna = {"lat": 67.8537716, "lng": 20.1163502};
+    DateTime date = DateTime.utc(2020, 7, 1);
+    final kiruna = Coord(lat: 67.8537716, lng: 20.1163502);
     // https://www.timeanddate.com/sun/sweden/kiruna?month=7&year=2020
-    final times =
-        SunCalc.getTimes(date, lat: kiruna["lat"], lng: kiruna["lng"]);
+    final times = SunCalc.getTimes(date, lat: kiruna.lat, lng: kiruna.lng);
 
-    expect(times["sunrise"], null);
-    expect(times["sunset"], null);
+    expect(times.sunrise, null);
+    expect(times.sunset, null);
   });
 
   test('getTimes returns sun phases in summer in Kiruna', () {
-    DateTime date = new DateTime.utc(2020, 7, 17);
-    const kiruna = {"lat": 67.8537716, "lng": 20.1163502};
+    DateTime date = DateTime.utc(2020, 7, 17);
+    final kiruna = Coord(lat: 67.8537716, lng: 20.1163502);
     // https://www.timeanddate.com/sun/sweden/kiruna?month=7&year=2020
-    final times =
-        SunCalc.getTimes(date, lat: kiruna["lat"], lng: kiruna["lng"]);
+    final times = SunCalc.getTimes(date, lat: kiruna.lat, lng: kiruna.lng);
 
-    expect(times["sunrise"].toIso8601String().substring(0, 19),
+    expect(times.sunrise?.toIso8601String().substring(0, 19),
         "2020-07-16T23:17:03");
-    expect(times["sunset"].toIso8601String().substring(0, 19),
+    expect(times.sunset?.toIso8601String().substring(0, 19),
         "2020-07-17T22:16:31");
   });
 
   test(
       'getPosition returns azimuth and altitude for the given time and location',
       () {
-    final sunPos = SunCalc.getPosition(date, lat: lat, lng: lng);
+    final sunPos = SunCalc.getSunPosition(date, lat: lat, lng: lng);
 
-    expect(near(sunPos["azimuth"], -2.5003175907168385), true);
-    expect(near(sunPos["altitude"], -0.7000406838781611), true);
+    expect(near(sunPos.azimuth, -2.5003175907168385), true);
+    expect(near(sunPos.altitude, -0.7000406838781611), true);
   });
 
   test('getTimes returns sun phases for the given date and location', () {
     final times = SunCalc.getTimes(date, lat: lat, lng: lng);
-
-    testTimes.forEach((key, value) {
-      expect(times[key].toIso8601String().substring(0, 19) + "Z", value);
-    });
+    expect((times.solarNoon?.toIso8601String().substring(0, 19)),
+        '2013-03-05T10:10:57');
+    expect((times.nadir?.toIso8601String().substring(0, 19)),
+        '2013-03-04T22:10:57');
+    expect((times.sunrise?.toIso8601String().substring(0, 19)),
+        '2013-03-05T04:34:56');
+    expect((times.sunset?.toIso8601String().substring(0, 19)),
+        '2013-03-05T15:46:57');
+    expect((times.sunriseEnd?.toIso8601String().substring(0, 19)),
+        '2013-03-05T04:38:19');
+    expect((times.sunsetStart?.toIso8601String().substring(0, 19)),
+        '2013-03-05T15:43:34');
+    expect((times.dawn?.toIso8601String().substring(0, 19)),
+        '2013-03-05T04:02:17');
+    expect((times.dusk?.toIso8601String().substring(0, 19)),
+        '2013-03-05T16:19:36');
+    expect((times.nauticalDawn?.toIso8601String().substring(0, 19)),
+        '2013-03-05T03:24:31');
+    expect((times.nauticalDusk?.toIso8601String().substring(0, 19)),
+        '2013-03-05T16:57:22');
+    expect((times.nightEnd?.toIso8601String().substring(0, 19)),
+        '2013-03-05T02:46:17');
+    expect((times.night?.toIso8601String().substring(0, 19)),
+        '2013-03-05T17:35:36');
+    expect((times.goldenHourEnd?.toIso8601String().substring(0, 19)),
+        '2013-03-05T05:19:01');
+    expect((times.goldenHour?.toIso8601String().substring(0, 19)),
+        '2013-03-05T15:02:52');
   });
 
   test('getMoonPosition returns moon position data given time and location',
       () {
     final moonPos = SunCalc.getMoonPosition(date, lat: lat, lng: lng);
 
-    expect(near(moonPos["azimuth"], -0.9783999522438226), true);
-    expect(near(moonPos["altitude"], 0.014551482243892251), true);
-    expect(near(moonPos["distance"], 364121.37256256194), true);
+    expect(near(moonPos.azimuth, -0.9783999522438226), true);
+    expect(near(moonPos.altitude, 0.014551482243892251), true);
+    expect(near(moonPos.distance, 364121.37256256194), true);
   });
 
   test(
@@ -109,18 +121,18 @@ void main() {
       () {
     final moonIllum = SunCalc.getMoonIllumination(date);
 
-    expect(near(moonIllum["fraction"], 0.4848068202456373), true);
-    expect(near(moonIllum["phase"], 0.7548368838538762), true);
-    expect(near(moonIllum["angle"], 1.67329426785783465), true);
+    expect(near(moonIllum.fraction, 0.4848068202456373), true);
+    expect(near(moonIllum.phase, 0.7548368838538762), true);
+    expect(near(moonIllum.angle, 1.67329426785783465), true);
   });
 
   test('getMoonTimes returns moon rise and set times', () {
-    final moonTimes = SunCalc.getMoonTimes(new DateTime.utc(2013, 3, 4),
+    final moonTimes = SunCalc.getMoonTimes(DateTime.utc(2013, 3, 4),
         lat: lat, lng: lng, inUtc: true);
 
-    expect(moonTimes["rise"].toIso8601String().substring(0, 19),
+    expect(moonTimes.riseDateTime?.toIso8601String().substring(0, 19),
         "2013-03-04T23:54:29");
-    expect(moonTimes["set"].toIso8601String().substring(0, 19),
+    expect(moonTimes.setDateTime?.toIso8601String().substring(0, 19),
         "2013-03-04T07:47:58");
   });
 
@@ -128,9 +140,12 @@ void main() {
     SunCalc.addTime(0, riseName: 'z1', setName: 'z2');
     final times = SunCalc.getTimes(date, lat: lat, lng: lng);
 
-    expect(times['z1'].isBefore(times['sunrise']), false);
-    expect(times['z1'].isBefore(times['sunriseEnd']), false);
-    expect(times['z2'].isBefore(times['sunset']), true);
-    expect(times['z2'].isBefore(times['sunsetStart']), true);
+    expect(
+        times.custom['z1']?.isBefore(times.sunrise ?? DateTime(1970)), false);
+    expect(times.custom['z1']?.isBefore(times.sunriseEnd ?? DateTime(1970)),
+        false);
+    expect(times.custom['z2']?.isBefore(times.sunset ?? DateTime(1970)), true);
+    expect(times.custom['z2']?.isBefore(times.sunsetStart ?? DateTime(1970)),
+        true);
   });
 }
