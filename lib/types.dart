@@ -1,3 +1,4 @@
+/// Position of celestial objects
 class Position {
   final double azimuth;
   final double altitude;
@@ -12,6 +13,7 @@ class Position {
   });
 }
 
+/// Illumination of the moon
 class Illumination {
   final double fraction;
   final double phase;
@@ -24,6 +26,7 @@ class Illumination {
   });
 }
 
+/// Moon rise and set times
 class MoonTimes {
   final bool alwaysUp;
   final bool alwaysDown;
@@ -38,6 +41,7 @@ class MoonTimes {
   });
 }
 
+/// Times for different solar events like sunrise and sunset
 class SunTimes {
   final DateTime? solarNoon;
   final DateTime? nadir;

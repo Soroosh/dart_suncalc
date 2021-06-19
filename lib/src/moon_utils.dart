@@ -116,10 +116,11 @@ MoonTimes getMoonTimesInternal(DateTime date,
     }
 
     if (roots == 1) {
-      if (h0 < 0.0)
+      if (h0 < 0.0) {
         rise = i + x1;
-      else
+      } else {
         s = i + x1;
+      }
     } else if (roots == 2) {
       rise = i + (ye < 0.0 ? x2 : x1);
       s = i + (ye < 0.0 ? x1 : x2);

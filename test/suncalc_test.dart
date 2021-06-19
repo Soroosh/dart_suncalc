@@ -9,7 +9,7 @@ class Coord {
 }
 
 void main() {
-  bool near(val1, val2, [margin = 1E-15]) {
+  bool near(double val1, double val2, [double margin = 1E-15]) {
     return ((val1 - val2).abs() < margin);
   }
 
@@ -113,7 +113,7 @@ void main() {
 
     expect(near(moonPos.azimuth, -0.9783999522438226), true);
     expect(near(moonPos.altitude, 0.014551482243892251), true);
-    expect(near(moonPos.distance, 364121.37256256194), true);
+    expect(near(moonPos.distance ?? 0, 364121.37256256194), true);
   });
 
   test(

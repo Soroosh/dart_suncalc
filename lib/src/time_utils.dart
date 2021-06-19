@@ -39,5 +39,5 @@ double getSetJ(
 
 DateTime hoursLater(DateTime date, double h) {
   final ms = h * HOURS_IN_MS;
-  return date.add(new Duration(milliseconds: ms.toInt()));
+  return date.add(Duration(milliseconds: ms.toInt()));
 }

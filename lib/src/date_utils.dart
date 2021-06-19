@@ -7,11 +7,12 @@ double toJulian(DateTime date) {
 }
 
 DateTime? fromJulian(num j) {
-  if (j.isNaN)
+  if (j.isNaN) {
     return null;
-  else
+  } else {
     return julianEpoch
         .add(Duration(milliseconds: (j * Duration.millisecondsPerDay).floor()));
+  }
 }
 
 double toDays(DateTime date) {
